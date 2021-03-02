@@ -100,7 +100,7 @@ var drawHistogram = function (_attr, lst) {
         .attr('text-anchor', 'end')
         .attr('x', 0)
         .attr('y', -5)
-        .text('sum')
+        .text('freq')
         .attr('text-anchor', 'start');
 
     d3.select('#histogram').on('mousedown', function () {

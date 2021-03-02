@@ -1,9 +1,13 @@
 var chooseX = function (ob) {
-    pickX = xAxisChecked = ob.checked;
+    xAxisChecked = ob.checked;
+    justClicked['checked'] = xAxisChecked;
+    justClicked['axis'] = 'x';
 }
 
 var chooseY = function (ob) {
-    pickY = yAxisChecked = ob.checked;
+    yAxisChecked = ob.checked;
+    justClicked['checked'] = yAxisChecked;
+    justClicked['axis'] = 'y';
 }
 
 function drawScatterPlot(xAxisName, yAxisName) {
@@ -45,7 +49,10 @@ function drawScatterPlot(xAxisName, yAxisName) {
         svg.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + height + ')')
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll('text')
+            .attr("transform", "rotate(45)")
+            .style("text-anchor", "start");
 
         var yMax = d3.max(yLst);
         var y = d3.scale.linear()
@@ -58,6 +65,19 @@ function drawScatterPlot(xAxisName, yAxisName) {
             .attr('class', 'y axis')
             .call(yAxis);
 
+        svg.append('text')
+            .attr('text-anchor', 'end')
+            .attr('x', width + 30)
+            .attr('y', height + 35)
+            .text(xAxisName);
+
+        svg.append('text')
+            .attr('text-anchor', 'end')
+            .attr('x', 0)
+            .attr('y', -5)
+            .text(yAxisName)
+            .attr('text-anchor', 'start');
+
         svg.append('g')
             .selectAll('dot')
             .data(data)
@@ -69,17 +89,112 @@ function drawScatterPlot(xAxisName, yAxisName) {
             .style('fill', '#69b3a2')
     }
 
+    function numCatScatterPlot() {
+        if (xType === 'numerical') {
+            var xMax = d3.max(xLst);
+            var x = d3.scale.linear()
+                .domain([0, xMax])
+                .range([0, width]);
+
+            var yCat = {};
+            yLst.forEach(function (d) {
+                if (yCat[d] === undefined) {
+                    yCat[d] = 1;
+                } else {
+                    yCat[d]++;
+                }
+            });
+            var y = d3.scale.ordinal()
+                .domain(d3.keys(yCat))
+                .rangeRoundBands([height, 0], 0.02);
+        } else {
+            var xCat = {};
+            xLst.forEach(function (d) {
+                if (xCat[d] === undefined) {
+                    xCat[d] = 1;
+                } else {
+                    xCat[d]++;
+                }
+            });
+            var x = d3.scale.ordinal()
+                .domain(d3.keys(xCat))
+                .rangeRoundBands([height, 0], 0.02);
+
+            var yMax = d3.max(yLst);
+            var y = d3.scale.linear()
+                .domain([0, yMax])
+                .range([0, width]);
+        }
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient('bottom');
+        svg.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(xAxis)
+            .selectAll('text')
+            .attr("transform", "rotate(45)")
+            .style("text-anchor", "start");
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient('left');
+        svg.append('g')
+            .attr('class', 'y axis')
+            .call(yAxis);
+
+        svg.append('text')
+            .attr('text-anchor', 'end')
+            .attr('x', width + 30)
+            .attr('y', height + 35)
+            .text(xAxisName);
+
+        svg.append('text')
+            .attr('text-anchor', 'end')
+            .attr('x', 0)
+            .attr('y', -5)
+            .text(yAxisName)
+            .attr('text-anchor', 'start');
+
+        var points = [];
+        if (xType === 'numerical') {
+            xLst.forEach(function (d, i) {
+                points.push([x(d), y(yLst[i]) + y.rangeBand() / 2]);
+            });
+        } else {
+            xLst.forEach(function (d, i) {
+                points.push([x(d) + x.rangeBand() / 2, y(yLst[i])]);
+            })
+        }
+        svg.append('g')
+            .selectAll('dot')
+            .data(points)
+            .enter()
+            .append('circle')
+            .attr('cx', function (d) {
+                return d[0];
+            })
+            .attr('cy', function (d) {
+                return d[1];
+            })
+            .attr('r', function (d) {
+                return 3;
+            })
+            .style('fill', '#69b3a2')
+    }
+
     function catScatterPlot() {
 
         var nums = {};
-        data.forEach(function (d) {
-            if (nums[d[0]] === undefined) {
-                nums[d[0]] = {};
+        xLst.forEach(function (d, i) {
+            if (nums[d] === undefined) {
+                nums[d] = {};
             }
-            if (nums[d[0]][d[1]] === undefined) {
-                nums[d[0]][d[1]] = 1;
+            if (nums[d][yLst[i]] === undefined) {
+                nums[d][yLst[i]] = 1;
             } else {
-                nums[d[0]][d[1]]++;
+                nums[d][yLst[i]]++;
             }
         });
         var points = [];
@@ -98,10 +213,7 @@ function drawScatterPlot(xAxisName, yAxisName) {
                 d[2] = 0.1;
             }
         });
-        var data = [];
-        xLst.forEach(function (d, i) {
-            data.push([d, yLst[i]]);
-        });
+        
         var xCat = {}, yCat = {};
         xLst.forEach(function (d) {
             if (xCat[d] === undefined) {
@@ -122,30 +234,39 @@ function drawScatterPlot(xAxisName, yAxisName) {
         var x = d3.scale.ordinal()
             .domain(d3.keys(xCat))
             .rangeRoundBands([0, width], 0.02);
-        var xTick = d3.keys(xCat).map(function (d) {
-            return x(d);
-        })
         var xAxis = d3.svg.axis()
             .scale(x)
             .orient('bottom');
         svg.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + height + ')')
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll('text')
+            .attr("transform", "rotate(45)")
+            .style("text-anchor", "start");
 
         var y = d3.scale.ordinal()
             .domain(d3.keys(yCat))
             .rangeRoundBands([height, 0], 0.02);
-        var yTick = d3.keys(yCat).map(function (d) {
-            return y(d);
-        })
         var yAxis = d3.svg.axis()
             .scale(y)
-            //.tickValues(yTick)
             .orient('left');
         svg.append('g')
             .attr('class', 'y axis')
             .call(yAxis);
+
+        svg.append('text')
+            .attr('text-anchor', 'end')
+            .attr('x', width + 30)
+            .attr('y', height + 35)
+            .text(xAxisName);
+
+        svg.append('text')
+            .attr('text-anchor', 'end')
+            .attr('x', 0)
+            .attr('y', -5)
+            .text(yAxisName)
+            .attr('text-anchor', 'start');
 
         svg.append('g')
             .selectAll('dot')
@@ -163,4 +284,6 @@ function drawScatterPlot(xAxisName, yAxisName) {
             })
             .style('fill', '#69b3a2')
     }
+
+
 }

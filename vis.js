@@ -2,9 +2,9 @@ var mtx = {};
 var id = 'vis';
 var bins = 20;
 var xAxisChecked = false, yAxisChecked = false;
-var pickX = false, pickY = false;
+var justClicked = {};
 var xAxisName, yAxisName;
-var margin = { left: 40, right: 30, top: 20, bottom: 40 };
+var margin = { left: 90, right: 30, top: 20, bottom: 90 };
 var width;
 var height;
 window.onload = function () {
@@ -95,13 +95,24 @@ function initMenu(headers) {
 }
 
 function drawChart(sel) {
-    if (pickX) {
-        pickX = false;
-        xAxisName = document.getElementById('attrs').value;
-    }
-    if (pickY) {
-        pickY = false;
-        yAxisName = document.getElementById('attrs').value;
+    if (justClicked['checked']) {
+        switch (justClicked['axis']) {
+            case 'x':
+                xAxisName = document.getElementById('attrs').value;
+                break;
+            case 'y':
+                yAxisName = document.getElementById('attrs').value;
+                break;
+        }
+    } else if (xAxisChecked || yAxisChecked) {
+        switch (justClicked['axis']) {
+            case 'x':
+                yAxisName = document.getElementById('attrs').value;
+                return;
+            case 'y':
+                xAxisName = document.getElementById('attrs').value;
+                return;
+        }
     }
     if (xAxisChecked && yAxisChecked) {
         d3.select('#barchart').remove();
