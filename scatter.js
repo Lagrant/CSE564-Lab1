@@ -118,12 +118,12 @@ function drawScatterPlot(xAxisName, yAxisName) {
             });
             var x = d3.scale.ordinal()
                 .domain(d3.keys(xCat))
-                .rangeRoundBands([height, 0], 0.02);
+                .rangeRoundBands([width, 0], 0.02);
 
             var yMax = d3.max(yLst);
             var y = d3.scale.linear()
                 .domain([0, yMax])
-                .range([0, width]);
+                .range([0, height]);
         }
 
         var xAxis = d3.svg.axis()

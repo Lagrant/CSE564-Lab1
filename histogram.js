@@ -81,7 +81,10 @@ var drawHistogram = function (_attr, lst) {
     svg.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate(0,' + height + ')')
-        .call(xAxis);
+        .call(xAxis)
+        .selectAll('text')
+        .attr("transform", "rotate(45)")
+        .style("text-anchor", "start");
     //.selectAll('text')
     //.style('text-anchor', 'middle');
 
@@ -194,7 +197,10 @@ var drawHistogram = function (_attr, lst) {
             .call(d3.svg.axis()
                 .scale(x)
                 .tickValues(xTick)
-                .orient("bottom"));
+                .orient("bottom"))
+            .selectAll('text')
+            .attr("transform", "rotate(45)")
+            .style("text-anchor", "start");
 
         svg.selectAll(".y")
             .transition().duration(1000)
