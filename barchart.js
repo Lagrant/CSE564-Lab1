@@ -54,7 +54,7 @@ var drawBarChart = function (_attr, lst) {
         .data(catArray)
         .enter().append('g')
         .attr('class', 'bar')
-        .attr('transform', function (d, i) { return 'translate(' + x(d.cat) + ',' + y(d.value) + ')'; });
+        .attr('transform', function (d) { return 'translate(' + x(d.cat) + ',' + y(d.value) + ')'; });
 
     bar.append('rect')
         .attr('class', 'bar')
@@ -100,7 +100,7 @@ var drawBarChart = function (_attr, lst) {
         .call(xAxis)
         .selectAll('text')
         .attr("transform", "rotate(45)")
-        .style("text-anchor", "start")
+        .style("text-anchor", "start");
     //.text(function (d) {
     //    return d.length > 7 ? d.substring(0, 7) + "..." : d;
     //});

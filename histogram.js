@@ -8,7 +8,6 @@ var drawHistogram = function (_attr, lst) {
         .domain([xMin, xMax])
         .range([0, width]);
 
-    // Generate a histogram using twenty uniformly-spaced bins.
     var data = d3.layout.histogram()
         .bins(x.ticks(bins))
         (lst);

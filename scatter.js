@@ -75,8 +75,7 @@ function drawScatterPlot(xAxisName, yAxisName) {
             .attr('text-anchor', 'end')
             .attr('x', 0)
             .attr('y', -5)
-            .text(yAxisName)
-            .attr('text-anchor', 'start');
+            .text(yAxisName);
 
         svg.append('g')
             .selectAll('dot')
@@ -86,7 +85,7 @@ function drawScatterPlot(xAxisName, yAxisName) {
             .attr('cx', function (d) { return x(d[0]); })
             .attr('cy', function (d) { return y(d[1]); })
             .attr('r', 3)
-            .style('fill', '#69b3a2')
+            .style('fill', '#69b3a2');
     }
 
     function numCatScatterPlot() {
